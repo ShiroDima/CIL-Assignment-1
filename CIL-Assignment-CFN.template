@@ -1,0 +1,92 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "A template to create the stack for CIL Module 3 assignment",
+  "Resources": {
+    "S3BackupRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        ],
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "S3BackupS3Access",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "s3:GetObject",
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "S3Storage",
+                      "Arn"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "S3BackUpInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "S3BackupRole"
+          }
+        ]
+      },
+      "DependsOn": [
+        "S3BackupRole"
+      ]
+    },
+    "S3Storage": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "aws-s3-cil",
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": false,
+          "BlockPublicPolicy": false,
+          "IgnorePublicAcls": false,
+          "RestrictPublicBuckets": false
+        }
+      }
+    },
+    "S3Backup": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": "ami-0f844a9675b22ea32",
+        "InstanceType": "t2.micro",
+        "IamInstanceProfile": {
+          "Ref": "S3BackUpInstanceProfile"
+        }
+      },
+      "DependsOn": [
+        "S3BackupRole",
+        "S3BackUpInstanceProfile",
+        "S3Storage"
+      ]
+    }
+  }
+}
