@@ -52,3 +52,8 @@ Version Control Systems (VCS). The main advantages of this is the reproducibilit
 > The function get_objects `s3.get_objects(Bucket=BUCKET_NAME, Key=FILE_NAME)` was then used to download each object as they were looped over and store them in the **myS3backup** folder.
 
 ![img.png](snapshots/Python-Snapshot.png)
+
+> ## Cron
+> Crontab is an execution scheduler for Unix-like systems. It has a very simple syntax.
+> It can be used to run certain commands or scripts at prescribed times. The python script was scheduled as 
+> `*/30 8 * * * python3 backup.py`. Which means it'll run at 30 minute intervals during the 8th hour every day, month and day of the week
